@@ -14,9 +14,8 @@ public class SwiftZoomNativeSdkPlugin: NSObject, FlutterPlugin {
 
         if call.method == "initZoom" {
             guard let args = call.arguments as? Dictionary<String, String> else { return }
-            let sdkKey = args["appKey"] ?? ""
-            let sdkSecret = args["appSecret"] ?? ""
-            setupSDK(sdkKey: sdkKey, sdkSecret: sdkSecret)
+            let jwt = args["appKey"] ?? ""
+            setupSDK(jwt: jwt)
             result(true)
         }
 
@@ -133,8 +132,6 @@ extension SwiftZoomNativeSdkPlugin: MobileRTCMeetingServiceDelegate {
         case .ended:
             print("ended")
 
-        case .unknow:
-            print("unknow")
 
         case .locked:
             print("locked")
@@ -181,7 +178,7 @@ extension SwiftZoomNativeSdkPlugin: MobileRTCAuthDelegate {
     /// - Parameters:
     ///   - sdkKey: A valid SDK Client Key provided by the Zoom Marketplace.
     ///   - sdkSecret: A valid SDK Client Secret provided by the Zoom Marketplace.
-    func setupSDK(sdkKey: String, sdkSecret: String) {
+    func setupSDK(jwt: String) {
         let context = MobileRTCSDKInitContext()
         context.domain = "zoom.us"
         context.enableLog = false
@@ -190,8 +187,7 @@ extension SwiftZoomNativeSdkPlugin: MobileRTCAuthDelegate {
 
         if sdkInitializedSuccessfully == true, let authorizationService = MobileRTC.shared().getAuthService() {
             authorizationService.delegate = self
-            authorizationService.clientKey = sdkKey
-            authorizationService.clientSecret = sdkSecret
+            authorizationService.jwtToken = jwt
             authorizationService.sdkAuth()
         }
     }
